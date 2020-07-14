@@ -53,12 +53,13 @@ const resolvers = {
       const Locations = dbo.collection("locations");
       const res = await Locations.insertOne(marker);
       console.log(res)
+      pubsub.publish("MARKER_ADDED", { markerAdded: res.ops[0] });
       return res.ops[0]
     },
   },
   Subscription: {
     markerAdded: {
-      subscribe: () => pubsub.asyncIterator([MARKER_ADDED]),
+      subscribe: () => pubsub.asyncIterator("MARKER_ADDED"),
     },
   },
 };
