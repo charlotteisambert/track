@@ -3,10 +3,6 @@ const pubsub = new PubSub();
 let MongoClient = require("mongodb").MongoClient;
 let ObjectId = require("mongodb").ObjectId;
 const url = "mongodb://localhost:27017";
-const seoulLocation = {
-  longitude: 126.981834,
-  latitude: 37.556398,
-};
 
 const typeDefs = gql`
   type Marker {
@@ -64,8 +60,14 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer({ typeDefs, resolvers });
-
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  subscriptions: {
+    path: "/subscription"
+  }
+});
+const options = {}
 server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
 });
