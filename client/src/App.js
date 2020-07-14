@@ -27,8 +27,12 @@ function App() {
 
   if (dataOldMarkers) {
     const currentLocation = getCurrentLocation(dataOldMarkers, dataNewMarker);
+    console.log(currentLocation);
     return (
-      <Map center={[seoulLocation.latitude, seoulLocation.longitude]} zoom={12}>
+      <Map
+        center={[currentLocation.latitude, currentLocation.longitude]}
+        zoom={20}
+      >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
