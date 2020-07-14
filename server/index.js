@@ -1,54 +1,64 @@
-const { ApolloServer, gql } = require("apollo-server");
+const { ApolloServer, gql, PubSub } = require("apollo-server");
+const pubsub = new PubSub();
 let MongoClient = require("mongodb").MongoClient;
+let ObjectId = require("mongodb").ObjectId;
 const url = "mongodb://localhost:27017";
+const seoulLocation = {
+  longitude: 126.981834,
+  latitude: 37.556398,
+};
 
 const typeDefs = gql`
   type Marker {
+    _id: ID!
     longitude: Float!
     latitude: Float!
   }
   type Query {
-    getMarkers: [Marker]!
-    getMarker: Marker!
+    getMarkers: [Marker]
+    getMarker(_id: ID!): Marker
   }
   type Mutation {
     createMarker(latitude: Float!, longitude: Float!): Marker
-    # createMarkers([latitude: Float, longitude: Float]): [Marker]
+  }
+  type Subscription {
+    markerAdded: Marker
   }
 `;
 
-const marker = {
-  longitude: 13.2,
-  latitude: 12,
+const prepare = (o) => {
+  o._id = o._id.toString();
+  return o;
 };
-
-const markers = [marker];
 
 const resolvers = {
   Query: {
-    getMarkers: () => {
-      return markers;
+    getMarkers: async () => {
+      const db = await MongoClient.connect(url);
+      var dbo = db.db("track");
+      const Locations = dbo.collection("locations");
+      return await Locations.find({}).toArray();
     },
-    getMarker: () => {
-      return marker;
+    getMarker: async (_, { _id }) => {
+      const db = await MongoClient.connect(url);
+      var dbo = db.db("track");
+      const Locations = dbo.collection("locations");
+      return prepare(await Locations.findOne(ObjectId(_id)));
     },
   },
   Mutation: {
-    // createMarkers: (parent, { latitude, longitude }, context, info) => {
-    //   return markers;
-    // },
-    createMarker: (parent, { latitude, longitude }, context, info) => {
-      MongoClient.connect(url, (err, db) => {
-        if (err) throw err;
-        let dbo = db.db("track");
-        let myobj = { latitude, longitude };
-        dbo.collection("locations").insertOne(myobj, function (err, res) {
-          if (err) throw err;
-          console.log("1 document inserted");
-          db.close();
-        });
-      });
-      return { latitude, longitude };
+    createMarker: async (_, marker) => {
+      const db = await MongoClient.connect(url);
+      var dbo = db.db("track");
+      const Locations = dbo.collection("locations");
+      const res = await Locations.insertOne(marker);
+      console.log(res)
+      return res.ops[0]
+    },
+  },
+  Subscription: {
+    markerAdded: {
+      subscribe: () => pubsub.asyncIterator([MARKER_ADDED]),
     },
   },
 };
