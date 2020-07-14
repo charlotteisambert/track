@@ -1,50 +1,47 @@
-import React from 'react';
-import './App.css';
-import { useQuery, gql } from '@apollo/client';
+import React from "react";
+import "./App.css";
+import { useQuery, useSubscription } from "@apollo/client";
 import { Map, Marker, TileLayer } from "react-leaflet";
+import { MARKER_ADDED, GET_MARKERS } from "./graphql";
 
-const GET_MARKERS = gql`
-  query GetMarkers {
-    getMarkers {
-      _id
-      latitude
-      longitude
-    }
+const seoulLocation = {
+  longitude: 126.981834,
+  latitude: 37.556398,
+};
+
+function getCurrentLocation(dataOldMarkers, dataNewMarkers) {
+  if (dataNewMarkers) {
+    return dataNewMarkers.markerAdded;
+  } else {
+    return dataOldMarkers.getMarkers[0]; //returns the last marker
   }
-`;
+}
 
 function App() {
-  const { loading, error, data } = useQuery(GET_MARKERS);
+  const { loading, error, data: dataOldMarkers } = useQuery(GET_MARKERS);
+  const { data: dataNewMarker } = useSubscription(MARKER_ADDED);
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{error.message}</div>
-  if (data) {
-    console.log(data.getMarkers[0])
+  if (loading) return <div>Loading...</div>;
+
+  if (error) return <div>{error.message}</div>;
+
+  if (dataOldMarkers) {
+    const currentLocation = getCurrentLocation(dataOldMarkers, dataNewMarker);
     return (
-      <>
-        <div className="App">
-          {data.getMarkers.map(({ latitude, longitude }) => <div>{latitude} - {longitude}</div>)}
-        </div>
-        {/* Latitude, Longitude */}
-        <Map center={[37.556398, 126.981834]} zoom={12}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker
-            key={data.getMarkers[0]._id}
-            position={[
-              data.getMarkers[0].latitude,
-              data.getMarkers[0].longitude
-            ]}
-            onClick={() => {
-              console.log(data.getMarkers[0])
-            }}
-          />
-        </Map>
-      </>
+      <Map center={[seoulLocation.latitude, seoulLocation.longitude]} zoom={12}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <Marker
+          key={currentLocation._id}
+          position={[currentLocation.latitude, currentLocation.longitude]}
+        />
+      </Map>
     );
   }
+
+  return <></>;
 }
 
 export default App;
