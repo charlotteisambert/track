@@ -4,11 +4,6 @@ import { useQuery, useSubscription } from "@apollo/client";
 import { Map, Marker, TileLayer } from "react-leaflet";
 import { MARKER_ADDED, GET_MARKERS } from "./graphql";
 
-const seoulLocation = {
-  longitude: 126.981834,
-  latitude: 37.556398,
-};
-
 function getCurrentLocation(dataOldMarkers, dataNewMarkers) {
   if (dataNewMarkers) {
     return dataNewMarkers.markerAdded;
@@ -44,7 +39,6 @@ function App() {
       </Map>
     );
   }
-
   return <></>;
 }
 
