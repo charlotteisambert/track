@@ -11,14 +11,15 @@ const prepare = (o) => {
 
 async function createMarker(marker) {
     const db = await MongoClient.connect(URL);
-    var dbo = db.db("track");
+    const dbo = db.db("track");
     marker._id = null;
     const Locations = dbo.collection("locations");
     const result = await Locations.insertOne(marker);
+    const insertedId = result.insertedId;
+    const createdMarker = await Locations.findOne(({ _id: insertedId }))
     db.close();
-    const createdMarker = result.ops[0];
     pubsub.publish("MARKER_ADDED", { markerAdded: createdMarker });
-    return createdMarker;
+    return prepare(createdMarker);
 }
 
 const resolvers = {
