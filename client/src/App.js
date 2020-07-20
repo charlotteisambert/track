@@ -22,7 +22,6 @@ function App() {
 
   if (dataOldMarkers) {
     const currentLocation = getCurrentLocation(dataOldMarkers, dataNewMarker);
-    console.log(currentLocation.latitude,  currentLocation.longitude);
     return (
       <Map
         center={[currentLocation.latitude, currentLocation.longitude]}
