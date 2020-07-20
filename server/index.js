@@ -1,4 +1,4 @@
-const { ApolloServer, PubSub } = require("apollo-server");
+const { ApolloServer } = require("apollo-server");
 const typeDefs = require("./typeDefs");
 const resolvers = require("./resolvers").resolvers;
 const createMarker = require("./resolvers").createMarker;
@@ -10,7 +10,7 @@ let currentLocation = {
 
 const INCREASE_RATE = 0.0001;
 
-setInterval(async() => {
+setInterval(async () => {
   currentLocation.longitude += INCREASE_RATE;
   currentLocation.latitude += INCREASE_RATE;
   try {
