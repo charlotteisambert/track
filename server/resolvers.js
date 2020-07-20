@@ -1,6 +1,6 @@
 const { PubSub } = require("apollo-server");
 const pubsub = new PubSub();
-const Markers = require('./schema');
+const Markers = require('./mongoose');
 
 async function createMarker(marker) {
     const newMarker = new Markers({
