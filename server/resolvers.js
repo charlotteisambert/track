@@ -1,45 +1,29 @@
-let MongoClient = require("mongodb").MongoClient;
 const { PubSub } = require("apollo-server");
 const pubsub = new PubSub();
-let ObjectId = require("mongodb").ObjectId;
-const URL = "mongodb://localhost:27017";
-
-const prepare = (o) => {
-    o._id = o._id.toString();
-    return o;
-};
+const Markers = require('./mongoose');
 
 async function createMarker(marker) {
-    const db = await MongoClient.connect(URL);
-    const dbo = db.db("track");
-    marker._id = null;
-    const Locations = dbo.collection("locations");
-    const result = await Locations.insertOne(marker);
-    const insertedId = result.insertedId;
-    const createdMarker = await Locations.findOne(({ _id: insertedId }))
-    db.close();
+    const newMarker = new Markers({
+        longitude: marker.longitude,
+        latitude: marker.latitude,
+    });
+    const createdMarker = await newMarker.save();
     pubsub.publish("MARKER_ADDED", { markerAdded: createdMarker });
-    return prepare(createdMarker);
+    return createdMarker;
 }
 
 const resolvers = {
     Query: {
         getMarkers: async () => {
-            const db = await MongoClient.connect(URL);
-            const dbo = db.db("track");
-            const Locations = dbo.collection("locations");
-            return await Locations.find({}).toArray();
+            return await Markers.find();
         },
         getMarker: async (_, { _id }) => {
-            const db = await MongoClient.connect(URL);
-            const dbo = db.db("track");
-            const Locations = dbo.collection("locations");
-            return prepare(await Locations.findOne(ObjectId(_id)));
+            return await Markers.findById(_id);
         },
     },
     Mutation: {
         createMarker: async (_, marker) => {
-            return createMarker(marker);
+            return await createMarker(marker);
         },
     },
     Subscription: {
