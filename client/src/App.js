@@ -25,7 +25,7 @@ function App() {
     const currentLocation = getCurrentLocation(dataOldMarkers, dataNewMarker);
     return (
       <Map
-        center={[37.63529800000262, 127.06073400000263]}
+        center={[48.866667, 2.333333]}
         zoom={zoom}
       >
         {console.log(currentLocation)}

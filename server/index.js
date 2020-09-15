@@ -1,7 +1,7 @@
 const { ApolloServer } = require("apollo-server");
 const typeDefs = require("./typeDefs");
 const resolvers = require("./resolvers").resolvers;
-require("./intervalMarkers");
+// require("./intervalMarkers");
 
 const server = new ApolloServer({
   typeDefs,
