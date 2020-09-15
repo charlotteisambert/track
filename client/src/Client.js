@@ -5,11 +5,13 @@ import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 
 const httpLink = new HttpLink({
-  uri: 'http://localhost:4000/graphql'
+  // uri: 'http://localhost:4000/graphql'
+  uri: 'http://floriansahbi.com/graphql'
 });
 
 const wsLink = new WebSocketLink({
-  uri: "ws://localhost:4000/subscription",
+  // uri: "ws://localhost:4000/subscription",
+  uri: "ws://floriansahbi.com/subscription",
   options: {
     reconnect: true
   }
